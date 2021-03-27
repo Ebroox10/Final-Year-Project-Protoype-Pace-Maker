@@ -3,10 +3,13 @@ from threading import Thread
 import random
 
 class Main():
-    set_hr = 60
+    set_hr = 60                #change to import sysadmin variables passed through PaceWall
     pulse_interval = 3
+    max_hr = 80
+    min_hr = 60
 
     def compare(self, det_hr):
+        self.alert(det_hr)
         #calculate difference in set heart rate and detected heart rate
         dif_hr = (self.set_hr - det_hr)
         #calculates the time needed between each manual pulse
@@ -24,8 +27,20 @@ class Main():
             time.sleep(self.pulse_interval)
             print("!!!!!!Pulse!!!!!!")
 
-    def clock(self):
-        while True:
+    def alert(self, det_hr):
+        alert = ""
+        if (det_hr < self.min_hr):
+            alert = "LOW"
+            print(f"Heart Rate Alert: {alert}")
+        if (det_hr > self.max_hr):
+            alert = "HIGH"
+            print(f"Heart Rate Alert: {alert}")
+
+
+
+    def clock(self, option):
+
+        while option == "start":
             localtime = time.localtime()
             result = time.strftime("%I:%M:%S %p", localtime)
             print("Current Time: ", result)
@@ -33,7 +48,7 @@ class Main():
             time.sleep(1)
 
 class HR_Detection():
-    hr = 50
+    hr = 72
     def avghr(self):
         while True:
             #creates a random int in range of 40-80 as an average heart rate
@@ -53,7 +68,7 @@ ppm_hr_det = HR_Detection()
 
 #ppm.compare(50)
 Thread(target=ppm_main.pulse).start()
-Thread(target=ppm_main.clock).start()
+Thread(target=ppm_main.clock("stop")).start()
 Thread(target=ppm_hr_det.avghr()).start()
 
 
