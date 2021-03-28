@@ -69,7 +69,7 @@ ppm_hr_det = HR_Detection()
 #ppm.compare(50)
 Thread(target=ppm_main.pulse).start()
 Thread(target=ppm_main.clock("stop")).start()
-Thread(target=ppm_hr_det.avghr()).start()
+#Thread(target=ppm_hr_det.avghr()).start()
 
 
 

@@ -1,19 +1,32 @@
+from main import Main
 class SysAdmin():
     maxhr = 92
     minhr = 52
     avghr = 72
     def setmaxhr(option):         #This is the maximum heart rate that triggers a high alert
         SysAdmin.maxhr = option
-        PaceWall.maxhrchk()
+        out = PaceWall.maxhrchk()
+        return out
 
     def setminhr(option):         #This is the minum heart rate that triggers a low alert
         SysAdmin.minhr = option
-        PaceWall.minhrchk()
+        out = PaceWall.minhrchk()
+        return out
+
 
 
     def setavghr(option):         # This function determins what bpm the program will attempt to keep average
         SysAdmin.avghr = option
-        PaceWall.avghrchk()
+        out = PaceWall.avghrchk()
+        return out
+
+    def chkinfo():
+        info = f"|Current set HR: {Main.set_hr}|Current Max HR {Main.max_hr}|Current Min HR {Main.min_hr}|Current Pulse intv {Main.pulse_interval}|"
+        return info
+
+
+
+
 
 class PaceWall():                       #this function acts as the firewall for the pacemaker preventing malicious variabels being set eg. "avghr = 1000"
     pw_maxhr = 100
@@ -23,19 +36,26 @@ class PaceWall():                       #this function acts as the firewall for 
 
     def maxhrchk():
         if (SysAdmin.maxhr <= PaceWall.pw_maxhr):
-            print(f"Setting MaxHR to {SysAdmin.maxhr}")
+            Main.max_hr = SysAdmin.maxhr
+            return True
+
         else:
-            print(f"ERROR: The MaxHR of {SysAdmin.maxhr} is too big, MaxHR allowed on this system is {PaceWall.pw_maxhr}.")
+            return False
+
 
     def minhrchk():
-        if (SysAdmin.mihr >= PaceWall.pw_minhr):
-            print(f"Setting MaxHR to {SysAdmin.minhr}")
+        if (SysAdmin.minhr >= PaceWall.pw_minhr):
+            Main.min_hr = SysAdmin.minhr
+            return True
         else:
-            print(f"ERROR: The MaxHR of {SysAdmin.minhr} is too big, MaxHR allowed on this system is {PaceWall.pw_maxhr}.")
-
+            return False
 
     def avghrchk():
         if (PaceWall.pw_minavghr <= SysAdmin.avghr <= PaceWall.pw_maxavghr):
-            print(f"Setting AvgHR to {SysAdmin.avghr}")
+            Main.set_hr = SysAdmin.avghr
+            return True
         else:
-            print(f"ERROR: The AvgHR of {SysAdmin.avghr} is out of range, the allowed range on this system is {PaceWall.pw_minavghr} - {PaceWall.pw_maxavghr}.")
+            return False
+
+
+#SysAdmin.setminhr(0)
