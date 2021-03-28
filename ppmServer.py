@@ -1,7 +1,7 @@
 import socket
 from SysAdmin import *
 host = '127.0.0.1'
-port = 1234
+port = 1235
 
 def switch(data):
     data = data.decode('utf-8')

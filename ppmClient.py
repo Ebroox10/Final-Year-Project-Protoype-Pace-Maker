@@ -1,7 +1,7 @@
 import socket
 
 host = '127.0.0.1'
-port = 1234
+port = 1235
 #host = input("Please Enter Host Address: ")
 #port = input("Please Enter Host Port: ")
 #print(host, port)
