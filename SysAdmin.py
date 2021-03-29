@@ -1,8 +1,11 @@
 from main import Main
+from csv import reader
+from Crypto.Hash import SHA256
 class SysAdmin():
     maxhr = 92
     minhr = 52
     avghr = 72
+    userdata = []
     def setmaxhr(option):         #This is the maximum heart rate that triggers a high alert
         SysAdmin.maxhr = option
         out = PaceWall.maxhrchk()
@@ -23,6 +26,17 @@ class SysAdmin():
     def chkinfo():
         info = f"|Current set HR: {Main.set_hr}|Current Max HR {Main.max_hr}|Current Min HR {Main.min_hr}|Current Pulse intv {Main.pulse_interval}|"
         return info
+
+    def loaduserdata():
+        with open('userdata.csv', 'r') as ud:
+            SysAdmin.userdata = dict(reader(ud))
+
+
+            #userdata_read = reader(userdata)
+            #list_of_userdata = list(userdata_read)
+            #print(list_of_userdata)
+
+
 
 
 
@@ -59,3 +73,4 @@ class PaceWall():                       #this function acts as the firewall for 
 
 
 #SysAdmin.setminhr(0)
+SysAdmin.loaduserdata()

@@ -1,5 +1,6 @@
 import socket
 from SysAdmin import *
+from Crypto.Hash import SHA256
 host = '127.0.0.1'
 port = 1235
 
@@ -50,6 +51,7 @@ def switch(data):
 
         return
 
+
 while True:
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -58,8 +60,31 @@ while True:
         conn, addr = s.accept()
         with conn:
             print(f"Connected by {addr}")
-            msg = "Prototype PaceMaker".encode('utf-8')
+            msg = "PaceWall SysAdmin".encode('utf-8')
             conn.sendall(msg)
+            login = True
+            SysAdmin.loaduserdata()
+            while login:
+                data = conn.recv(1024)
+                if data.decode('utf-8') in SysAdmin.userdata:
+                    uname = data.decode('utf-8')
+                    conn.sendall(("True").encode('utf-8'))
+                    data = conn.recv(1024)
+
+
+                    if str((SHA256.new(data)).digest()) == SysAdmin.userdata[uname]:
+
+
+                        conn.sendall(("True").encode('utf-8'))
+                        conn.sendall((f"Welcome To PaceWall {uname}").encode('utf-8'))
+                        login = False
+
+                    else:
+                        conn.sendall(("False").encode('utf-8'))
+
+                else:
+                    conn.sendall(("False").encode('utf-8'))
+
             while True:
                 try:
                     data = conn.recv(1024)
