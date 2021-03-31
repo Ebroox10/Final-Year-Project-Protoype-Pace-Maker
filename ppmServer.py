@@ -1,11 +1,11 @@
 import socket
 from SysAdmin import *
 from Crypto.Hash import SHA256
+from AES import ECB
 host = '127.0.0.1'
 port = 1235
-
+epass = "9876"
 def switch(data):
-    data = data.decode('utf-8')
     msg = ''
 
     if 'set minhr' in data:
@@ -15,7 +15,7 @@ def switch(data):
 
         else:
             msg =f"MinHR must be more than {PaceWall.pw_minhr}".encode('utf-8')
-        conn.sendall(msg)
+        conn.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
         return
 
     if 'set maxhr' in data:
@@ -25,29 +25,29 @@ def switch(data):
 
         else:
             msg = f"MaxHR must be less than {PaceWall.pw_maxhr}".encode('utf-8')
-        conn.sendall(msg)
+        conn.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
         return
 
     if 'set avghr' in data:
         chk = SysAdmin.setavghr(int(data[10:]))
         if chk == True:
-            msg = f"AvgHR has been set to: {data[10:]}".encode('utf-8')
+            msg = f"AvgHR has been set to: {data[10:]}"
 
         else:
-            msg = f"AvgHR must be in the range {PaceWall.pw_minavghr} - {PaceWall.pw_maxavghr}".encode('utf-8')
-        conn.sendall(msg)
+            msg = f"AvgHR must be in the range {PaceWall.pw_minavghr} - {PaceWall.pw_maxavghr}"
+        conn.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
         return
 
     if 'chkinfo' in data:
-        msg = SysAdmin.chkinfo().encode('utf-8')
-        conn.send(msg)
+        msg = SysAdmin.chkinfo()
+        conn.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
         return
 
 
 
     else:
-        msg  = (f"---{data}--- IS AN INVALID COMMAND").encode('utf-8')
-        conn.sendall(msg)
+        msg  = (f"---{data}--- IS AN INVALID COMMAND")
+        conn.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
 
         return
 
@@ -60,34 +60,33 @@ while True:
         conn, addr = s.accept()
         with conn:
             print(f"Connected by {addr}")
-            msg = "PaceWall SysAdmin".encode('utf-8')
-            conn.sendall(msg)
+            msg = "PaceWall SysAdmin"
+            conn.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
             login = True
             SysAdmin.loaduserdata()
             while login:
                 data = conn.recv(1024)
-                if data.decode('utf-8') in SysAdmin.userdata:
-                    uname = data.decode('utf-8')
-                    conn.sendall(("True").encode('utf-8'))
+                if ECB.decrypt(data.decode('utf-8'), epass) in SysAdmin.userdata:
+                    uname = ECB.decrypt(data.decode('utf-8'), epass)
+                    conn.sendall((ECB.encrypt("True", epass)).encode('utf-8'))
                     data = conn.recv(1024)
 
 
-                    if str((SHA256.new(data)).digest()) == SysAdmin.userdata[uname]:
+                    if str((SHA256.new((ECB.decrypt(data.decode('utf-8'), epass)).encode('utf-8'))).digest()) == SysAdmin.userdata[uname]:
 
-
-                        conn.sendall(("True").encode('utf-8'))
-                        conn.sendall((f"Welcome To PaceWall {uname}").encode('utf-8'))
+                        conn.sendall((ECB.encrypt("True", epass)).encode('utf-8'))
+                        conn.sendall((ECB.encrypt((f"Welcome To PaceWall: {uname}"), epass)).encode('utf-8'))
                         login = False
 
                     else:
-                        conn.sendall(("False").encode('utf-8'))
+                        conn.sendall((ECB.encrypt("False", epass)).encode('utf-8'))
 
                 else:
-                    conn.sendall(("False").encode('utf-8'))
+                    conn.sendall((ECB.encrypt("False", epass)).encode('utf-8'))
 
             while True:
                 try:
-                    data = conn.recv(1024)
+                    data = ECB.decrypt((conn.recv(1024)).decode('utf-8'), epass)
                 except:
                     print("Lost Connection to client")
                     break

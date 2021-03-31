@@ -1,6 +1,8 @@
 import socket
+from AES import ECB
 host = '127.0.0.1'
 port = 1235
+epass = "9876"
 #host = input("Please Enter Host Address: ")
 #port = input("Please Enter Host Port: ")
 #print(host, port)
@@ -8,19 +10,20 @@ port = 1235
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((host, port))
-    sid = s.recv(1024).decode('utf-8')
-    print(f"Connected To: {sid}")
+    print(f"Connected To: {ECB.decrypt(s.recv(1024).decode('utf-8'), epass)}")
+    #sid = s.recv(1024).decode('utf-8')
+    #print(f"Connected To: {sid}")
     login = True
     while login:
-        uname = input("Enter UserName: ").encode('utf-8')
-        s.sendall(uname)
-        data = s.recv(1024)
-        if data.decode('utf-8') == "True":
-            pwd = input("Enter Password: ").encode('utf-8')
-            s.sendall(pwd)
-            data = s.recv(1024)
-            if data.decode('utf-8') == "True":
-                print(s.recv(1024).decode('utf-8'))
+        uname = input("Enter UserName: ")
+        s.sendall((ECB.encrypt(uname, epass)).encode('utf-8'))
+        data = ECB.decrypt(s.recv(1024).decode('utf-8'), epass)
+        if data == "True":
+            pwd = input("Enter Password: ")
+            s.sendall((ECB.encrypt(pwd, epass)).encode('utf-8'))
+            data = ECB.decrypt(s.recv(1024).decode('utf-8'), epass)
+            if data == "True":
+                print(ECB.decrypt(s.recv(1024).decode('utf-8'), epass))
                 login = False
 
 
@@ -35,14 +38,17 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
 
     while True:
-        msg = input("Enter Text to send: ").encode('utf-8')
+        msg = input("Enter Text to send: ")
 
-        if msg.decode('utf-8') == "exit":
+        if msg == "exit":
             print("quiting")
             quit()
 
-        s.sendall(msg)
-        data = s.recv(1024)
+        s.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
+        data = ECB.decrypt(s.recv(1024).decode('utf-8'), epass)
         if not data:
             break
-        print(data.decode('utf-8'))
+
+
+        #print(data.decode('utf-8'))
+        print(data)
