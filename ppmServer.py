@@ -4,7 +4,9 @@ from Crypto.Hash import SHA256
 from AES import ECB
 host = '127.0.0.1'
 port = 1235
-epass = "9876"
+epass = "9876"  #change this to non hardcoded
+
+
 def switch(data):
     msg = ''
 
