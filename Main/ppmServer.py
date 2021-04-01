@@ -1,11 +1,11 @@
 import socket
+import datetime
 from SysAdmin import *
 from Crypto.Hash import SHA256
 from AES import ECB
 host = '127.0.0.1'
 port = 1235
 epass = "9876"  #change this to non hardcoded
-
 
 def switch(data):
     msg = ''
@@ -45,6 +45,27 @@ def switch(data):
         conn.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
         return
 
+    if 'chkusr' in data:
+        msg = SysAdmin.chkusr()
+        conn.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
+        return
+
+
+    if 'delusr' in data:
+        conn.sendall((ECB.encrypt(SysAdmin.delusr(data[7:]), epass).encode('utf-8')))
+        return
+
+    if 'addusr' in data:
+        sdata = data[7:].rsplit(sep=' ')
+        conn.sendall((ECB.encrypt(SysAdmin.addusr(sdata[0], sdata[1]), epass).encode('utf-8')))
+        return
+
+    if 'chkuptime' in data:
+        conn.sendall((ECB.encrypt(SysAdmin.chkuptime(), epass).encode('utf-8')))
+        return
+
+
+
 
 
     else:
@@ -60,7 +81,7 @@ while True:
         s.listen()
         conn, addr = s.accept()
         with conn:
-            print(f"Connected by {addr}")
+            print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Connected by {addr}")
             msg = "PaceWall SysAdmin"
             conn.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
             login = True
@@ -86,10 +107,10 @@ while True:
                             break
 
 
-                        if str((SHA256.new(data.encode('utf-8'))).digest()) == SysAdmin.userdata[uname]:
-
+                        if str(f"{(SHA256.new(data.encode('utf-8'))).digest()}") == SysAdmin.userdata[uname]:
                             conn.sendall((ECB.encrypt("True", epass)).encode('utf-8'))
                             conn.sendall((ECB.encrypt((f"Welcome To PaceWall: {uname}"), epass)).encode('utf-8'))
+                            print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {uname} has logged on")
                             login = False
 
                         else:
@@ -109,6 +130,6 @@ while True:
                     conn.sendall((ECB.encrypt("INVALID COMMAND", epass)).encode('utf-8'))
                     connected = False
                     break
-                print(data)
+                print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {uname}->{data}")
                 switch(data)
 

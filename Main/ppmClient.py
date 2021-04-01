@@ -1,5 +1,6 @@
 import socket
 from AES import ECB
+import os
 host = '127.0.0.1'
 port = 1235
 epass = "9876"
@@ -46,6 +47,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
         if msg == "":
             print("INVALID COMMAND")
+
+        if msg == "cls":
+            os.system('cls')
 
         else:
             s.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
