@@ -53,7 +53,6 @@ def switch(data):
 
         return
 
-
 while True:
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -66,32 +65,50 @@ while True:
             conn.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
             login = True
             SysAdmin.loaduserdata()
-            while login:
-                data = conn.recv(1024)
-                if ECB.decrypt(data.decode('utf-8'), epass) in SysAdmin.userdata:
-                    uname = ECB.decrypt(data.decode('utf-8'), epass)
-                    conn.sendall((ECB.encrypt("True", epass)).encode('utf-8'))
-                    data = conn.recv(1024)
+            connected = True
+            while connected:
+                while login:
 
-
-                    if str((SHA256.new((ECB.decrypt(data.decode('utf-8'), epass)).encode('utf-8'))).digest()) == SysAdmin.userdata[uname]:
-
+                    try:
+                        data = ECB.decrypt(conn.recv(1024).decode('utf-8'), epass)
+                    except:
+                        connected = False
+                        print("Lost Connection to client")
+                        break
+                    if data in SysAdmin.userdata:
+                        uname = data
                         conn.sendall((ECB.encrypt("True", epass)).encode('utf-8'))
-                        conn.sendall((ECB.encrypt((f"Welcome To PaceWall: {uname}"), epass)).encode('utf-8'))
-                        login = False
+                        try:
+                            data = ECB.decrypt(conn.recv(1024).decode('utf-8'), epass)
+                        except:
+                            connected = False
+                            print("Lost Connection to client")
+                            break
+
+
+                        if str((SHA256.new(data.encode('utf-8'))).digest()) == SysAdmin.userdata[uname]:
+
+                            conn.sendall((ECB.encrypt("True", epass)).encode('utf-8'))
+                            conn.sendall((ECB.encrypt((f"Welcome To PaceWall: {uname}"), epass)).encode('utf-8'))
+                            login = False
+
+                        else:
+                            conn.sendall((ECB.encrypt("False", epass)).encode('utf-8'))
 
                     else:
                         conn.sendall((ECB.encrypt("False", epass)).encode('utf-8'))
 
-                else:
-                    conn.sendall((ECB.encrypt("False", epass)).encode('utf-8'))
 
-            while True:
                 try:
                     data = ECB.decrypt((conn.recv(1024)).decode('utf-8'), epass)
                 except:
                     print("Lost Connection to client")
+                    connected = False
                     break
                 if not data:
+                    conn.sendall((ECB.encrypt("INVALID COMMAND", epass)).encode('utf-8'))
+                    connected = False
                     break
+                print(data)
                 switch(data)
+
