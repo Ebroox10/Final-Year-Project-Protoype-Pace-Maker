@@ -44,11 +44,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             print("quiting")
             quit()
 
-        s.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
-        data = ECB.decrypt(s.recv(1024).decode('utf-8'), epass)
-        if not data:
-            break
+        if msg == "":
+            print("INVALID COMMAND")
 
-
-        #print(data.decode('utf-8'))
-        print(data)
+        else:
+            s.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
+            data = ECB.decrypt(s.recv(1024).decode('utf-8'), epass)
+            if not data:
+                break
+            print(data)
