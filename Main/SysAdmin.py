@@ -51,13 +51,18 @@ class SysAdmin():
                 for key in userdata.keys():
                     ud.write((f"{key}|{userdata[key]}\n").encode('utf-8'))
                     out = f"User {option} Deleted"
-                    SysAdmin.loaduserdata()
+            SysAdmin.loaduserdata()
             return out
         if not found:
             out = f"User {option} Was not Found"
             return out
 
     def addusr(uname, passwd):
+        for key in SysAdmin.userdata.keys():
+            if uname  == key:
+                out = f"User {uname} Already exists"
+                return out
+
         hpasswd = (SHA256.new(passwd.encode('utf-8'))).digest()
         SysAdmin.userdata.update({uname:hpasswd})
         os.remove('userdata.csv')
@@ -69,7 +74,7 @@ class SysAdmin():
         return out
 
     def chkusr():
-        out = '\n'.join(f'{key}' for key, value in SysAdmin.userdata.items())
+        out = '|'.join(f'{key}' for key, value in SysAdmin.userdata.items())
         return out
 
     def chkuptime():
