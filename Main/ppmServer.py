@@ -3,20 +3,12 @@ import datetime
 from SysAdmin import *
 from Crypto.Hash import SHA256
 from AES import ECB
-
+from logger import LC
 host = '127.0.0.1'
 port = 1235
 epass = "9876"  #change this to non hardcoded
 
 class server():
-    sfcnt = 0
-
-    def log(data):
-        logtxt = f"{server.sfcnt}:{data}"
-        log = open("Log.txt", "a")
-        print((ECB.encrypt(logtxt, epass)), file=log)
-        server.sfcnt += 1
-        log.close()
 
     def switch(data):
         msg = ''
@@ -30,7 +22,7 @@ class server():
                 result = f"MinHR must be more than {PaceWall.pw_minhr}".encode('utf-8')
             conn.sendall((ECB.encrypt(result, epass)).encode('utf-8'))
             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
-            server.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
+            LC.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
             return
 
         if 'set maxhr' in data:
@@ -42,7 +34,7 @@ class server():
                 result = f"MaxHR must be less than {PaceWall.pw_maxhr}".encode('utf-8')
             conn.sendall((ECB.encrypt(result, epass)).encode('utf-8'))
             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
-            server.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
+            LC.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
             return
 
         if 'set avghr' in data:
@@ -54,7 +46,7 @@ class server():
                 result = f"AvgHR must be in the range {PaceWall.pw_minavghr} - {PaceWall.pw_maxavghr}"
             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
             log = open("Log.txt", "a")
-            server.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
+            LC.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
             conn.sendall((ECB.encrypt(result, epass)).encode('utf-8'))
             return
 
@@ -63,21 +55,21 @@ class server():
             conn.sendall((ECB.encrypt(result, epass)).encode('utf-8'))
             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
             log = open("Log.txt", "a")
-            server.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
+            LC.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
             return
 
         if 'chkusr' in data:
             result = SysAdmin.chkusr()
             conn.sendall((ECB.encrypt(result, epass)).encode('utf-8'))
             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
-            server.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
+            LC.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
             return
 
         if 'delusr' in data:
             result = SysAdmin.delusr(data[7:])
             conn.sendall((ECB.encrypt(result, epass).encode('utf-8')))
             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
-            server.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
+            LC.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
             return
 
         if 'addusr' in data:
@@ -85,7 +77,7 @@ class server():
             result = SysAdmin.addusr(sdata[0], sdata[1])
             conn.sendall((ECB.encrypt(result, epass).encode('utf-8')))
             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
-            server.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
+            LC.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}")
             return
 
         if 'chkuptime' in data:
@@ -98,13 +90,13 @@ class server():
         else:
             result = (f"---{data}--- IS AN INVALID COMMAND")
             logtxt = f":{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {(len(uname) * ' ')}->{result}"
-            server.log(logtxt)
+            LC.log(logtxt)
             conn.sendall((ECB.encrypt(result, epass)).encode('utf-8'))
 
             return
 
 
-server.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  SERVER STARTING")
+LC.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  SERVER STARTING")
 while True:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((host, port))
@@ -113,7 +105,7 @@ while True:
         with conn:
             logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Connected by {addr}"
             print(logtxt)
-            server.log(logtxt)
+            LC.log(logtxt)
             msg = "PaceWall SysAdmin"
             conn.sendall((ECB.encrypt(msg, epass)).encode('utf-8'))
             login = True
@@ -128,7 +120,7 @@ while True:
                         connected = False
                         print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}")
                         logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}"
-                        server.log(logtxt)
+                        LC.log(logtxt)
                         break
                     if data in SysAdmin.userdata:
                         uname = data
@@ -139,7 +131,7 @@ while True:
                             connected = False
                             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}")
                             logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}"
-                            server.log(logtxt)
+                            LC.log(logtxt)
                             break
 
 
@@ -148,19 +140,19 @@ while True:
                             conn.sendall((ECB.encrypt((f"Welcome To PaceWall: {uname}"), epass)).encode('utf-8'))
                             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {uname} has logged on")
                             logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {uname} has logged on"
-                            server.log(logtxt)
+                            LC.log(logtxt)
                             login = False
 
                         else:
                             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !ALERT!{addr}->###### INVALID PASSWORD")
                             logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !ALERT!{addr}->###### INVALID PASSWORD"
-                            server.log(logtxt)
+                            LC.log(logtxt)
                             conn.sendall((ECB.encrypt("False", epass)).encode('utf-8'))
 
                     else:
                         print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !ALERT!{addr}->{data} INVALID USERNAME")
                         logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !ALERT!{addr}->{data} INVALID USERNAME"
-                        server.log(logtxt)
+                        LC.log(logtxt)
                         conn.sendall((ECB.encrypt("False", epass)).encode('utf-8'))
 
 
@@ -170,7 +162,7 @@ while True:
                     if login == False:
                         print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}")
                         logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}"
-                        server.log(logtxt)
+                        LC.log(logtxt)
                     connected = False
                     break
                 if not data:
@@ -184,12 +176,12 @@ while True:
                     msg = (f"{temp[0]} {temp[1]} {x}")
                     print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {uname}->{msg}")
                     logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {uname}->{msg}"
-                    server.log(logtxt)
+                    LC.log(logtxt)
                     server.switch(data)
 
                 else:
                     print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {uname}->{data}")
                     logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  {uname}->{msg}"
-                    server.log(logtxt)
+                    LC.log(logtxt)
                     server.switch(data)
 

@@ -1,12 +1,16 @@
 import time
 from threading import Thread
 import random
+import datetime
+from logger import LC
+
 
 class Main():
     set_hr = 60                #change to import sysadmin variables passed through PaceWall
     pulse_interval = 3
     max_hr = 80
     min_hr = 60
+    
 
     def compare(self, det_hr):
         self.alert()
@@ -15,17 +19,18 @@ class Main():
         #calculates the time needed between each manual pulse
         if (det_hr != 60) & (dif_hr > 0):
             Main.pulse_interval = abs(1 / (1 - (det_hr / self.set_hr)))
-            print("Difference in HR", dif_hr)
-            print("Pulse Interval:", Main.pulse_interval)
+            #print("Difference in HR", dif_hr)
+            #print("Pulse Interval:", Main.pulse_interval)
         time.sleep(2)
 
     def pulse(self):
-        print("pulse Starting")
+        #print("pulse Starting")
         #time.sleep(5)
         while True:
             #print(self.pulse_interval)
             time.sleep(Main.pulse_interval)
-            print("!!!!!!Pulse!!!!!!")
+            print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !!!!!!Pulse!!!!!!")
+            LC.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !!!!!!Pulse!!!!!!")
             HR_Detection.avghr()
             self.clock()
 
@@ -72,7 +77,7 @@ ppm_hr_det = HR_Detection()
 
 #ppm.compare(50)
 
-#Thread(target=ppm_main.pulse).start()
+Thread(target=ppm_main.pulse).start()
 #Thread(target=ppm_main.clock("start")).start()
 #Thread(target=ppm_hr_det.avghr()).start()
 
