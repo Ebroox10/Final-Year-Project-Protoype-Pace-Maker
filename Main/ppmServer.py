@@ -10,6 +10,9 @@ epass = "9876"  #change this to non hardcoded
 
 class server():
 
+    #def conchk():
+
+
     def switch(data):
         msg = ''
 
@@ -97,6 +100,9 @@ class server():
 
 
 LC.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  SERVER STARTING")
+
+
+
 while True:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((host, port))
@@ -117,6 +123,7 @@ while True:
                     try:
                         data = ECB.decrypt(conn.recv(1024).decode('utf-8'), epass)
                     except:
+                        s.close()
                         connected = False
                         print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}")
                         logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}"
@@ -128,6 +135,7 @@ while True:
                         try:
                             data = ECB.decrypt(conn.recv(1024).decode('utf-8'), epass)
                         except:
+                            s.close()
                             connected = False
                             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}")
                             logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}"
@@ -147,18 +155,35 @@ while True:
                             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !ALERT!{addr}->###### INVALID PASSWORD")
                             logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !ALERT!{addr}->###### INVALID PASSWORD"
                             LC.log(logtxt)
-                            conn.sendall((ECB.encrypt("False", epass)).encode('utf-8'))
+                            try:
+                                conn.sendall((ECB.encrypt("False", epass)).encode('utf-8'))
+                            except:
+                                s.close()
+                                connected = False
+                                print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}")
+                                logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}"
+                                LC.log(logtxt)
+                                break
 
                     else:
                         print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !ALERT!{addr}->{data} INVALID USERNAME")
                         logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !ALERT!{addr}->{data} INVALID USERNAME"
                         LC.log(logtxt)
-                        conn.sendall((ECB.encrypt("False", epass)).encode('utf-8'))
+                        try:
+                            conn.sendall((ECB.encrypt("False", epass)).encode('utf-8'))
+                        except:
+                            s.close()
+                            connected = False
+                            print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}")
+                            logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}"
+                            LC.log(logtxt)
+                            break
 
 
                 try:
                     data = ECB.decrypt((conn.recv(1024)).decode('utf-8'), epass)
                 except:
+                    s.close()
                     if login == False:
                         print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}")
                         logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}"
@@ -166,7 +191,15 @@ while True:
                     connected = False
                     break
                 if not data:
-                    conn.sendall((ECB.encrypt("INVALID COMMAND", epass)).encode('utf-8'))
+                    try:
+                        conn.sendall((ECB.encrypt("INVALID COMMAND", epass)).encode('utf-8'))
+                    except:
+                        s.close()
+                        connected = False
+                        print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}")
+                        logtxt = f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Lost Connection to {addr}"
+                        LC.log(logtxt)
+                        break
                     connected = False
                     break
 
