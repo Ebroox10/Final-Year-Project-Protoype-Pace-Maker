@@ -2,6 +2,7 @@ import socket
 from AES import ECB
 import os
 host = '127.0.0.1'
+#host = '192.168.1.130'
 port = 1235
 epass = "9876"
 #host = input("Please Enter Host Address: ")
