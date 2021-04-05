@@ -1,9 +1,8 @@
-import time
+from time import sleep
 from threading import Thread
 import random
 import datetime
 from logger import LC
-from time import sleep
 #import RPi.GPIO as GPIO
 
 #GPIO stuff
@@ -28,13 +27,14 @@ class Main():
     hrlist = [0,1,2,3,4]
     count = 0
 
-    def pm(self):
+    def pm():
+        print("HELLO")
         while True:
             #print("----------------------------")
             Heart.bps()
-            self.avgcal()
-            self.alert()
-            if (Heart.bpm/60) < (self.set_hr/60):
+            Main.avgcal()
+            Main.alert()
+            if (Heart.bpm/60) < (Main.set_hr/60):
                 #Thread(target=Heart.beat()).start()
                 sleep(60/Main.set_hr)
                 print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !!!!!!Pulse!!!!!!")
@@ -52,28 +52,31 @@ class Main():
                 #sleep(0.1)
                 #GPIO.output(OHEART, GPIO.LOW)
             #print("--------------------------------")
-    def alert(self):
-        if (Heart.bpm < self.min_hr):
+    def alert():
+        if (Heart.bpm < Main.min_hr):
             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !!!!!!Heart Rate LOW!!!!!!")
             LC.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !!!!!!Heart Rate LOW!!!!!!")
-        if (Heart.bpm > self.max_hr):
+        if (Heart.bpm > Main.max_hr):
             print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !!!!!!Heart Rate HIGH!!!!!!")
             LC.log(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  !!!!!!Heart Rate HIGH!!!!!!")
         else:
             return
 
-    def avgcal(self):
-        #print("TEST")
-        if self.count == 5:
-            Main.avghr = (self.hrlist[0] + self.hrlist[1] + self.hrlist[2] + self.hrlist[3] + self.hrlist[4])/5
+    def avgcal():
+        if Main.count == 5:
+            Main.avghr = (Main.hrlist[0] + Main.hrlist[1] + Main.hrlist[2] + Main.hrlist[3] + Main.hrlist[4])/5
             #print (Main.hrlist)
-            self.count = 0
+            Main.count = 0
             #print(Main.avghr)
         else:
-            Main.hrlist[self.count] = Heart.bpm
-            #print(self.hrlist)
-            #print(self.count)
-            self.count += 1
+            Main.hrlist[Main.count] = Heart.bpm
+            Main.count += 1
+
+
+    #def timechk():
+
+        #rtime =
+
 
 class Heart():
     rantime = 0
@@ -109,17 +112,23 @@ class Heart():
 
 
 
+#Heart.bps()
+
+
+
 #def tik():
 
 
 
 
-ppm_main = Main()
+#ppm_main = Main()
 #ppm_hr_det = HR_Detection()
-
+print("TEST")
 #ppm.compare(50)
+Main.pm()
+print("TEST")
 
-Thread(target=ppm_main.pm).start()
+#Thread(target=ppm_main.pm()).start()
 #Thread(target=HR_Detection.heart()).start()
 #Thread(target=ppm_main.clock("start")).start()
 #Thread(target=ppm_hr_det.avghr()).start()
