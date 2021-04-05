@@ -1,4 +1,4 @@
-from main import Main
+from main import Main,Heart
 import datetime
 from csv import reader, register_dialect
 import os
@@ -28,7 +28,7 @@ class SysAdmin():
         return out
 
     def chkinfo():
-        info = f"|Current set HR: {Main.set_hr}|Current Max HR {Main.max_hr}|Current Min HR {Main.min_hr}|Current Pulse intv {Main.pulse_interval}|"
+        info = f"|Current set HR: {Main.set_hr}|Current Max HR {Main.max_hr}|Current Min HR {Main.min_hr}|Average Heart Rate {Main.avghr}|"
         return info
 
     def loaduserdata():
@@ -80,6 +80,14 @@ class SysAdmin():
     def chkuptime():
         #out = f"Uptime is {}"
         out =  f"Uptime: {((datetime.datetime.now()) - (startuptime)).days}"
+        return out
+
+    def hearthealth(health):
+        if -1 < int(health) < 5:
+            Heart.hearthealth = int(health)
+            out = f"HH set to {health}"
+        else:
+            out = "ERROR"
         return out
 
 
