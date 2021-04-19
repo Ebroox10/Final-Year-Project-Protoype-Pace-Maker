@@ -114,11 +114,11 @@ class Heart():
 
 
 
-ppm_main = Main()
+
 #ppm_hr_det = HR_Detection()
 
 #ppm.compare(50)
-
+ppm_main = Main()
 Thread(target=ppm_main.pm).start()
 #Thread(target=HR_Detection.heart()).start()
 #Thread(target=ppm_main.clock("start")).start()
